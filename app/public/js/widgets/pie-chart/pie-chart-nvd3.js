@@ -10,7 +10,7 @@
   }, {
     'key': 'Get clarity on data',
     'y': 0,
-    'end': 3
+    'end': 6
   }, {
     'key': 'report viewing',
     'y': 0,

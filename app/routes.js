@@ -7,6 +7,9 @@ app.use(express.static(__dirname + '/public'))
     app.get('/', function(req, res) {
         res.render('index.ejs');
     });
+    app.get('/appointment', function(req, res) {
+        res.render('appointment.ejs');
+    });
     app.get('/forms', function(req, res) {
         res.render('forms.ejs');
     });
