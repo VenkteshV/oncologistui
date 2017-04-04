@@ -1,3 +1,4 @@
+
 var express = require('express');
 module.exports = function(app, passport) {
 
@@ -19,11 +20,71 @@ app.use(express.static(__dirname + '/public'))
             user : req.user
         });
     });
+    app.get('/input', isLoggedIn, function(req, res) {
+        res.render('fuzzy.ejs')
+
+    });
 
     // LOGOUT ==============================
     app.get('/logout', function(req, res) {
         req.logout();
         res.redirect('/');
+    });
+    app.post('/fuzzy', function(req, res) {
+      console.log(req.body.cholestrol);
+      var inp = [
+        req.body.cholestrol,
+        req.body.obesity
+      ];
+      var fuzzyis = require('fuzzyis');
+      var system = new fuzzyis.FIS('Cancer system');
+      var LV = fuzzyis.LinguisticVariable;
+       var Term = fuzzyis.Term;
+        var Rule = fuzzyis.Rule;
+      var outputs = [
+    new LV('chance of cancer', [0, 100])
+    ];
+    var inputs = [
+    new LV('obesity', [0, 10]),
+    new LV('cholestrol', [0, 10])
+];
+// take some shortcuts
+var CANCER = outputs[0];
+var OBESITY = inputs[0];
+var CHOLESTROL = inputs[1];
+
+OBESITY.addTerm(new Term('normal', 'gauss', [0, 2.123]));
+OBESITY.addTerm(new Term('high', 'gauss', [2.123, 5]));
+OBESITY.addTerm(new Term('very high', 'gauss', [5, 10]));
+
+CHOLESTROL.addTerm(new Term('normal', 'gauss', [0,2.123]));
+CHOLESTROL.addTerm(new Term('high', 'gauss', [2.123, 5]));
+CHOLESTROL.addTerm(new Term('very high', 'gauss', [5, 10]));
+CANCER.addTerm(new Term('low', 'triangle', [0, 15, 30]));
+CANCER.addTerm(new Term('medium', 'triangle', [30, 45, 60]));
+CANCER.addTerm(new Term('high', 'triangle', [60, 75, 90]));
+
+system.inputs = inputs;
+system.outputs = outputs;
+system.rules = [
+    new Rule(
+        ['normal', 'normal'],
+        ['low'],
+        'and'
+    ),
+    new Rule(
+        ['high', 'high'],
+        ['medium'],
+        'and'
+    ),
+    new Rule(
+        ['very high', 'very high'],
+        ['high'],
+        'and'
+    )
+];
+var output = system.getPreciseOutput([inp[0],inp[1]]);
+res.render('tables.ejs', { output:output})
     });
 
 // =============================================================================
