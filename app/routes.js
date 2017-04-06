@@ -1,4 +1,5 @@
-
+var request = require("request");
+var $ = require("jquery")
 var express = require('express');
 module.exports = function(app, passport) {
 
@@ -13,6 +14,17 @@ app.use(express.static(__dirname + '/public'))
     });
     app.get('/forms', function(req, res) {
         res.render('forms.ejs');
+    });
+    app.post('/report', function(req,res){
+        console.log(req.body.patientid);
+       request("http://localhost:3000/data_analytics/get_analytics_data?user_id="+req.body.patientid, function(err, resp, body) {
+       data = JSON.parse(body);
+
+    console.log(data);
+
+        res.render('report.ejs',{data :data});
+              });
+           
     });
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function(req, res) {
